@@ -79,6 +79,8 @@ provider "aws" {
 #   }
 # }
 
+
+
 # resource "aws_route_table" "rt_public" {
 #   vpc_id = aws_vpc.ecommerce-vpc.id
 
