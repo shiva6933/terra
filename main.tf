@@ -1,9 +1,9 @@
 terraform {
-  # backend "s3" {
-  #   bucket = "coit-terraform-statebucket"
-  #   key    = "ecommerce.tfstate"
-  #   region = "ap-south-1"
-  # }
+  backend "s3" {
+    bucket = "coit-terraform-statebucket"
+    key    = "ecommerce.tfstate"
+    region = "ap-south-1"
+  }
   required_providers {
       aws = {
           source = "hashicorp/aws"
@@ -106,7 +106,7 @@ resource "aws_route_table_association" "associate-1b-rt" {
 
 variable "imageId" {
   type = string
-  default = "ami-0cfe39d5e0c8e331a"
+  default = "ami-0491e5015eb6e7a9b"
 }
 
 variable "instanceType" {
@@ -133,7 +133,7 @@ resource "aws_instance" "web001" {
 }
 
 resource "aws_instance" "web002" {
-  ami           = "ami-0cfe39d5e0c8e331a"
+  ami           = "ami-0491e5015eb6e7a9b"
   instance_type = "t2.micro"
   subnet_id = aws_subnet.subnet_1b.id
   vpc_security_group_ids = [ aws_security_group.webservers.id ]
@@ -145,7 +145,7 @@ resource "aws_instance" "web002" {
 }
 
 resource "aws_instance" "web003" {
-  ami           = "ami-0cfe39d5e0c8e331a"
+  ami           = "ami-0491e5015eb6e7a9b"
   instance_type = "t2.micro"
   subnet_id = aws_subnet.subnet_1b.id
   vpc_security_group_ids = [ aws_security_group.webservers.id ]
@@ -203,110 +203,110 @@ resource "aws_security_group" "webservers" {
   }
 }
 
-# # resource "aws_lb_target_group" "mywebservergroup" {
-# #   name     = "webservergroup"
-# #   port     = 80
-# #   protocol = "HTTP"
-# #   vpc_id   = aws_vpc.ecommerce-vpc.id
-# # }
+resource "aws_lb_target_group" "mywebservergroup" {
+  name     = "webservergroup"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.ecommerce-vpc.id
+}
 
-# # resource "aws_lb_target_group_attachment" "attach_web001_tg" {
-# #   count = length(aws_instance.web001)
-# #   target_group_arn = aws_lb_target_group.mywebservergroup.arn
-# #   target_id        = aws_instance.web001[count.index].id
-# #   port             = 80
-# # }
+resource "aws_lb_target_group_attachment" "attach_web001_tg" {
+  count = length(aws_instance.web001)
+  target_group_arn = aws_lb_target_group.mywebservergroup.arn
+  target_id        = aws_instance.web001[count.index].id
+  port             = 80
+}
 
-# # resource "aws_lb_target_group_attachment" "attach_web002_tg" {
-# #   target_group_arn = aws_lb_target_group.mywebservergroup.arn
-# #   target_id        = aws_instance.web002.id
-# #   port             = 80
-# # }
+resource "aws_lb_target_group_attachment" "attach_web002_tg" {
+  target_group_arn = aws_lb_target_group.mywebservergroup.arn
+  target_id        = aws_instance.web002.id
+  port             = 80
+}
 
-# # resource "aws_lb_target_group_attachment" "attach_web003_tg" {
-# #   target_group_arn = aws_lb_target_group.mywebservergroup.arn
-# #   target_id        = aws_instance.web003.id
-# #   port             = 80
-# # }
+resource "aws_lb_target_group_attachment" "attach_web003_tg" {
+  target_group_arn = aws_lb_target_group.mywebservergroup.arn
+  target_id        = aws_instance.web003.id
+  port             = 80
+}
 
 
-# # resource "aws_security_group" "lb_webservers" {
-# #   name        = "lb-webservers-80"
-# #   description = "Allow HTTP inbound traffic"
-# #   vpc_id      = aws_vpc.ecommerce-vpc.id
+resource "aws_security_group" "lb_webservers" {
+  name        = "lb-webservers-80"
+  description = "Allow HTTP inbound traffic"
+  vpc_id      = aws_vpc.ecommerce-vpc.id
 
-# #   ingress {
-# #     description      = "HTTP"
-# #     from_port        = 80
-# #     to_port          = 80
-# #     protocol         = "tcp"
-# #     cidr_blocks      = ["0.0.0.0/0"]
-# #   }
-# #   egress {
-# #     from_port        = 0
-# #     to_port          = 0
-# #     protocol         = "-1"
-# #     cidr_blocks      = ["0.0.0.0/0"]
-# #     ipv6_cidr_blocks = ["::/0"]
-# #   }
-# #   tags = {
-# #     Name = "allow_tls"
-# #   }
-# # }
+  ingress {
+    description      = "HTTP"
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+  tags = {
+    Name = "allow_tls"
+  }
+}
  
-# # resource "aws_launch_configuration" "ecommerce-lc" {
-# #   name          = "ecommerce-lc"
-# #   image_id      = "ami-0cfe39d5e0c8e331a"
-# #   instance_type = "t2.micro"
-# #   security_groups = [ aws_security_group.webservers.id ]
-# #   key_name = "ansible"
-# # }
+resource "aws_launch_configuration" "ecommerce-lc" {
+  name          = "ecommerce-lc"
+  image_id      = "ami-0491e5015eb6e7a9b"
+  instance_type = "t2.micro"
+  security_groups = [ aws_security_group.webservers.id ]
+  key_name = "ansible"
+}
 
-# variable "asgMin" {
-#   type = string
-#   default = "1"
+variable "asgMin" {
+  type = string
+  default = "1"
 
-# }
+}
 
-# variable "asgMax" {
-#   type = string
-#   default = "5"
+variable "asgMax" {
+  type = string
+  default = "5"
 
-# }
+}
 
-# variable "asgDesired" {
-#   type = string
-#   default = "2"
+variable "asgDesired" {
+  type = string
+  default = "2"
 
-# }
+}
 
-# # resource "aws_autoscaling_group" "ecommerce_asg" {
-# #   name                      = "ecommerce_asg"
-# #   max_size                  = "${var.asgMax}"
-# #   min_size                  = "${var.asgMin}"
-# #   desired_capacity          = "${var.asgDesired}"
-# #   force_delete              = true
-# #   launch_configuration      = aws_launch_configuration.ecommerce-lc.name
-# #   vpc_zone_identifier       = [aws_subnet.subnet_1a.id, aws_subnet.subnet_1b.id]
+resource "aws_autoscaling_group" "ecommerce_asg" {
+  name                      = "ecommerce_asg"
+  max_size                  = "${var.asgMax}"
+  min_size                  = "${var.asgMin}"
+  desired_capacity          = "${var.asgDesired}"
+  force_delete              = true
+  launch_configuration      = aws_launch_configuration.ecommerce-lc.name
+  vpc_zone_identifier       = [aws_subnet.subnet_1a.id, aws_subnet.subnet_1b.id]
 
-# #   tag {
-# #     key                 = "foo"
-# #     value               = "bar" 
-# #     propagate_at_launch = true
-# #   }
+  tag {
+    key                 = "foo"
+    value               = "bar" 
+    propagate_at_launch = true
+  }
 
-# #   timeouts {
-# #     delete = "15m"
-# #   }
+  timeouts {
+    delete = "15m"
+  }
 
-# #   tag {
-# #     key                 = "lorem"
-# #     value               = "ipsum"
-# #     propagate_at_launch = false
-# #   }
-# # }
+  tag {
+    key                 = "lorem"
+    value               = "ipsum"
+    propagate_at_launch = false
+  }
+}
 
-# # resource "aws_autoscaling_attachment" "asg_attachment_ecommerce" {
-# #   autoscaling_group_name = aws_autoscaling_group.ecommerce_asg.id
-# #   lb_target_group_arn    = aws_lb_target_group.mywebservergroup.arn
-# # }
+resource "aws_autoscaling_attachment" "asg_attachment_ecommerce" {
+  autoscaling_group_name = aws_autoscaling_group.ecommerce_asg.id
+  lb_target_group_arn    = aws_lb_target_group.mywebservergroup.arn
+}
